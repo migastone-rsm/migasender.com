@@ -4,13 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Standalone marketing site for Migasender (WhatsApp automation API) built by Migastone International SRL. Pure static HTML/CSS/Vanilla JS, hosted on Worldstream (LiteSpeed, honours `.htaccess`). There is no build system, no package manager and no framework.
+Standalone marketing site for Migasender (WhatsApp automation API) built by Migastone International SRL. Pure static HTML/CSS/Vanilla JS, hosted on Worldstream (LiteSpeed). There is no build system, no package manager and no framework. Repo: `github.com/migastone-rsm/migasender.com` (public), worked on by Oscar and Ivan.
 
 ## Common tasks
 
 - **Run locally**: open `index.html` directly in a browser, or serve the folder (`python3 -m http.server 8000`). PHP form submission requires a PHP-capable server (`php -S localhost:8000`).
-- **Deploy**: push to `main` on `github.com/migastone-rsm/migasender.com`. `.github/workflows/deploy.yml` uploads the repo via FTP (SamKirkland/FTP-Deploy-Action, only changed files) excluding `*.md`, `.git*`, `.github/`, `.claude/`. Secrets: `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`; target folder: repo variable `FTP_SERVER_DIR` (deploy is skipped if it is unset). Pushes touching only `*.md` don't trigger a deploy; use "Run workflow" (workflow_dispatch) to force one.
+- **Deploy**: push to `main`. See "Deploy" below.
 - **No tests, no linter, no build step.** "Validation" is browser DevTools plus a manual click-through.
+
+## Deploy
+
+Every push to `main` deploys the live site automatically; there is no manual upload step any more.
+
+**How it works**
+- `.github/workflows/deploy.yml` (GitHub Actions) checks out the repo, verifies a few required files exist, then uploads the repo root to the Worldstream FTP with `SamKirkland/FTP-Deploy-Action`. A run takes about 40 seconds.
+- Target: `/public_html/` on the FTP, which is the web root of https://www.migasender.com.
+- Credentials live in GitHub, never in the repo: secrets `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, and the repo **variable** `FTP_SERVER_DIR` (`/public_html/`, trailing slash required). If `FTP_SERVER_DIR` is empty the workflow succeeds but skips the upload (with a notice).
+- Only `main` deploys. Other branches never touch the server, so use a branch when you want to work without publishing.
+- Not uploaded: `*.md`, `.git*`, `.github/`, `.claude/`, `.env*`, `node_modules/`, `.DS_Store`. So CLAUDE.md and the handoff notes never reach the server.
+- A push that changes only `*.md`, `.gitignore` or `LICENSE` does not start a deploy. To deploy anyway: GitHub > Actions > "Deploy to Worldstream FTP" > Run workflow, or `gh workflow run deploy.yml --repo migastone-rsm/migasender.com`.
+- Two pushes close together queue up (concurrency group), they don't overlap.
+
+**Incremental sync, and what that implies**
+- The action keeps `/public_html/.ftp-deploy-sync-state.json` on the server: the list of files and hashes from the last deploy. It uploads only what changed since then. **Don't delete it**: without it the next run re-uploads everything (slower, not harmful).
+- A file **deleted from the repo is deleted from the server** on the next deploy (if it was deployed before). Removing something from git is removing it from the live site.
+- The repo is the source of truth. Don't edit files on the server via FTP: the change is invisible to the sync state and gets overwritten the next time that file changes in git. Files that exist only on the server (never in git) are left alone.
+- Rollback: `git revert <commit>` and push; the revert deploys like any other change.
+
+**Checking a deploy**
+- `gh run list --repo migastone-rsm/migasender.com --limit 3` and `gh run watch <id> --repo migastone-rsm/migasender.com --exit-status`. The log line "replacing ..." lists what was uploaded.
+- Then verify the live file, bypassing caches: `curl -s "https://www.migasender.com/index.html?x=$RANDOM" | cmp - index.html`.
+- HTML is revalidated on each visit (ETag), but the server sends CSS with a 7-day cache, so a CSS change may need a hard refresh to show in a browser that already visited the site. If a CSS change must reach every visitor at once, add a version query to its `<link>` (e.g. `css/style.css?v=2`).
 
 ## Architecture
 
@@ -30,7 +54,7 @@ mg/    maddl/  valerio/ Self-contained partnership landing pages (own HTML/CSS/J
 The live hero and contact forms are **Kartra-hosted** (their `<form>` elements get class `js_kartra_trackable_object` injected by Kartra's loader). The JS submit handler in `js/main.js` deliberately skips them via `document.querySelectorAll('.contact-form:not(.js_kartra_trackable_object)')`; Kartra owns submission and analytics for those.
 
 `form-handler.php` and the native AJAX flow (posting to `MIGASENDER_CONFIG.formHandlerUrl`) remain as a fallback for any plain `.contact-form` you add. The fallback is **not usable as shipped**:
-- `.htaccess` blocks `form-handler.php` with a `RewriteRule` (403), so a native form's POST will fail: remove that rule if you activate one.
+- `.htaccess` contains a `RewriteRule` that blocks `form-handler.php` (403). It is not active on the live server today (see .htaccess below), but if it starts working a native form's POST will fail: remove that rule if you activate one.
 - `MIGASENDER_FROM_EMAIL` at the top of `form-handler.php` is still the placeholder `noreply@tuosito.com`; set it (and check the other `MIGASENDER_*` constants) before relying on it.
 
 ### i18n
@@ -53,8 +77,8 @@ Schema.org JSON-LD lives in three `<script type="application/ld+json">` blocks i
 
 `sitemap.xml` references the main page (plus `#prodotti`, `#prezzi`, `#contatto` anchors) and `/mg/`, `/maddl/`, but not `/valerio/`. `robots.txt` is permissive.
 
-### Apache / .htaccess
-The live server is LiteSpeed and from `.htaccess` it honours **only `mod_rewrite` rules** (checked 2026-10-03): the `FilesMatch`/`Order`/`Deny`, `mod_expires`, `mod_headers` and `mod_deflate` blocks have no effect there (GZIP and cache headers come from the server defaults). Access control is therefore done with `RewriteRule ... - [F]` in the rewrite section: hidden files (except `.well-known/`), `*.md`, `form-handler.php`. The HTTPS-redirect and www-canonicalization blocks are commented out: uncomment per environment, and don't enable both `force www` and `strip www`.
+### Server / .htaccess
+As of 2026-10-03 the live LiteSpeed server **does not apply `.htaccess` at all** as far as can be tested: the `FilesMatch`/`Deny` blocks, the cache/GZIP blocks, and the `RewriteRule ... - [F]` blocks added in the rewrite section (hidden files except `.well-known/`, `*.md`, `form-handler.php`) all have no effect, even though the deployed file matches the repo. Likely OpenLiteSpeed (re-reads `.htaccess` only after a server restart) or `.htaccess` disabled for the vhost; pending a check with Worldstream. Until then: don't rely on `.htaccess` for access control, and test any change to it against the live site after deploy. GZIP and cache headers come from the server defaults. The HTTPS-redirect and www-canonicalization blocks are commented out: uncomment per environment, and don't enable both `force www` and `strip www`.
 
 ## Conventions
 
