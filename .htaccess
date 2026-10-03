@@ -80,7 +80,16 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
-    
+
+    # Blocchi di sicurezza via rewrite: il server (LiteSpeed) ignora i
+    # FilesMatch/Deny qui sopra, ma rispetta le RewriteRule.
+    # File nascosti (.gitignore, .ftp-deploy-sync-state.json, ...), tranne .well-known per SSL
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    # Documentazione interna
+    RewriteRule \.md$ - [F,L,NC]
+    # Endpoint form nativo, non usato (i form live sono Kartra)
+    RewriteRule ^form-handler\.php$ - [F,L,NC]
+
     # Forza HTTPS (decommentare se hai SSL)
     # RewriteCond %{HTTPS} off
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

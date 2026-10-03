@@ -30,7 +30,7 @@ mg/    maddl/  valerio/ Self-contained partnership landing pages (own HTML/CSS/J
 The live hero and contact forms are **Kartra-hosted** (their `<form>` elements get class `js_kartra_trackable_object` injected by Kartra's loader). The JS submit handler in `js/main.js` deliberately skips them via `document.querySelectorAll('.contact-form:not(.js_kartra_trackable_object)')`; Kartra owns submission and analytics for those.
 
 `form-handler.php` and the native AJAX flow (posting to `MIGASENDER_CONFIG.formHandlerUrl`) remain as a fallback for any plain `.contact-form` you add. The fallback is **not usable as shipped**:
-- `.htaccess` tries to deny `form-handler.php` (the `FilesMatch` block at the top, Apache 2.2 `Order`/`Deny` syntax), but on the live LiteSpeed server it has no effect: `form-handler.php` and `README.md` answer 200 (checked 2026-10-03). Don't rely on that block for protection; if it is ever fixed, the native form's POST will start getting 403.
+- `.htaccess` blocks `form-handler.php` with a `RewriteRule` (403), so a native form's POST will fail: remove that rule if you activate one.
 - `MIGASENDER_FROM_EMAIL` at the top of `form-handler.php` is still the placeholder `noreply@tuosito.com`; set it (and check the other `MIGASENDER_*` constants) before relying on it.
 
 ### i18n
@@ -54,7 +54,7 @@ Schema.org JSON-LD lives in three `<script type="application/ld+json">` blocks i
 `sitemap.xml` references the main page (plus `#prodotti`, `#prezzi`, `#contatto` anchors) and `/mg/`, `/maddl/`, but not `/valerio/`. `robots.txt` is permissive.
 
 ### Apache / .htaccess
-`.htaccess` enables GZIP, sets long Cache-Control headers per asset type, tries to block `.git`, `README.md` and `form-handler.php` (ineffective on LiteSpeed, see Forms above), and disables directory listing. The HTTPS-redirect and www-canonicalization blocks are commented out: uncomment per environment, and don't enable both `force www` and `strip www`.
+The live server is LiteSpeed and from `.htaccess` it honours **only `mod_rewrite` rules** (checked 2026-10-03): the `FilesMatch`/`Order`/`Deny`, `mod_expires`, `mod_headers` and `mod_deflate` blocks have no effect there (GZIP and cache headers come from the server defaults). Access control is therefore done with `RewriteRule ... - [F]` in the rewrite section: hidden files (except `.well-known/`), `*.md`, `form-handler.php`. The HTTPS-redirect and www-canonicalization blocks are commented out: uncomment per environment, and don't enable both `force www` and `strip www`.
 
 ## Conventions
 
