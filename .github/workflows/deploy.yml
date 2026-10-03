@@ -1,0 +1,84 @@
+name: Deploy to Worldstream FTP
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Run any actions still targeting Node 20 (e.g. the FTP action) on Node 24.
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      # Step 2: Static site, no build. Deploy only once the target folder is configured
+      # (repo variable FTP_SERVER_DIR, e.g. /domains/migasender.com/public_html/).
+      - name: Check deploy configuration
+        id: check_config
+        env:
+          SERVER_DIR: ${{ vars.FTP_SERVER_DIR }}
+        run: |
+          if [ -n "$SERVER_DIR" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::notice::Repo variable FTP_SERVER_DIR not set. Skipping deploy."
+          fi
+
+      # Step 3: Sanity check on the files the site cannot work without
+      - name: Verify site files
+        run: |
+          for f in index.html .htaccess css/style.css js/main.js js/i18n.js; do
+            if [ ! -f "$f" ]; then
+              echo "::error::$f missing"
+              exit 1
+            fi
+          done
+
+      # Step 4: Deploy via FTP (only changed files after the first run)
+      - name: Deploy to Worldstream FTP
+        if: steps.check_config.outputs.configured == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: ${{ vars.FTP_SERVER_DIR }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/.claude/**
+            **/node_modules/**
+            **/.env*
+            **/.DS_Store
+            **/*.md
+
+      # Step 5: Deployment summary
+      - name: Deployment summary
+        if: steps.check_config.outputs.configured == 'true'
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit SHA:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Destination:** https://www.migasender.com (via Worldstream FTP)" >> $GITHUB_STEP_SUMMARY

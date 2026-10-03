@@ -1,0 +1,87 @@
+# Migasender - Git Ignore File
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# PHP
+vendor/
+composer.lock
+
+# Environment files (se usi config locale)
+.env
+.env.local
+config.local.php
+
+# Submission logs (se attivi)
+submissions.log
+form-submissions.log
+
+# Test files
+test.html
+test.php
+phpinfo.php
+
+# Deploy scripts personali
+deploy.sh
+deploy.bat
+sync.sh
+
+# Compilati/Minificati (se generi versioni minify)
+*.min.css.map
+*.min.js.map
+
+# Cache
+.cache/
+cache/
+
+# Upload temporanei
+uploads/temp/
+
+# Node modules (se mai aggiungerai npm)
+node_modules/
+package-lock.json
+
+# Backup database (se mai aggiungerai)
+*.sql
+*.sqlite
+*.db
+
+# Sensitive data
+passwords.txt
+credentials.txt
+secrets.txt
+# Claude Code (impostazioni locali)
+.claude/

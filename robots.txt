@@ -1,0 +1,36 @@
+# Migasender - Robots.txt
+# Configurazione per motori di ricerca
+
+User-agent: *
+Allow: /
+
+# Disallow file sensibili
+Disallow: /form-handler.php
+Disallow: /.htaccess
+Disallow: /logs/
+
+# Allow assets
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Sitemap
+Sitemap: https://www.migasender.com/sitemap.xml
+
+# Crawler specifici
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# Yandex
+User-agent: Yandex
+Allow: /
+
+# Crawl delay per bot aggressivi
+User-agent: *
+Crawl-delay: 1
