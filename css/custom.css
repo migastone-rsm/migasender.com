@@ -237,3 +237,36 @@ audio::-webkit-media-controls-panel {
         opacity: 0.9;
     }
 }
+/* Form contatto nativo (temporaneo, sostituisce il form Kartra): stesso stile dei campi di testo Kartra */
+.form_class_d1f491a404d6854880943e5c3cd9ca25 input[type="email"],
+.form_class_d1f491a404d6854880943e5c3cd9ca25 input[type="tel"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    margin-bottom: 16px;
+}
+
+.form_class_d1f491a404d6854880943e5c3cd9ca25 input[type="email"]:focus,
+.form_class_d1f491a404d6854880943e5c3cd9ca25 input[type="tel"]:focus {
+    border-color: var(--primary-blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+.form_class_d1f491a404d6854880943e5c3cd9ca25 .js_gdpr_wrapper label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.form_class_d1f491a404d6854880943e5c3cd9ca25 input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}

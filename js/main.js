@@ -5,7 +5,9 @@
 
 // Configurazione
 const MIGASENDER_CONFIG = {
-    formHandlerUrl: 'form-handler.php',
+    // Temporaneo: le richieste del form contatti vanno al flusso n8n "MIGASENDER - Richieste dal sito (temporaneo)",
+    // che le manda per email. Da sostituire con l'API ticket di MIGAMATCH.
+    formHandlerUrl: 'https://flow.migastone.com/webhook/migasender-richiesta-sito',
     messages: {
         success: 'Grazie! Il tuo messaggio è stato inviato con successo. Ti contatteremo a breve.',
         error: 'Si è verificato un errore. Riprova più tardi o contattaci direttamente al +39 0541 1795006',
@@ -259,6 +261,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // ================================
     // Seleziona solo i form che NON sono di Kartra (escludi js_kartra_trackable_object)
     const forms = document.querySelectorAll('.contact-form:not(.js_kartra_trackable_object)');
+
+    // Messaggi del form nella lingua corrente (chiavi form_msg_* in js/i18n.js), con fallback su MIGASENDER_CONFIG
+    function formMessage(name) {
+        const key = 'form_msg_' + name;
+        if (typeof window.getTranslation === 'function') {
+            const text = window.getTranslation(key);
+            if (text && text !== key) return text;
+        }
+        return MIGASENDER_CONFIG.messages[name];
+    }
     
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -266,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validazione client-side
             if (!validateForm(form)) {
-                showNotification(MIGASENDER_CONFIG.messages.validationError, 'error');
+                showNotification(formMessage('validationError'), 'error');
                 return false;
             }
             
@@ -276,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Disabilita button e mostra loading
             submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + MIGASENDER_CONFIG.messages.sending;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + formMessage('sending');
             
             // Prepara dati form
             const formData = new FormData(form);
@@ -284,6 +296,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Aggiungi tipo form
             const formId = form.id;
             formData.append('form_type', formId === 'heroForm' ? 'hero' : 'contact');
+            formData.append('lang', document.documentElement.lang || '');
+            formData.append('page', window.location.href);
             
             // Invia via AJAX
             fetch(MIGASENDER_CONFIG.formHandlerUrl, {
@@ -298,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (data.success) {
                     // Successo
-                    showNotification(data.message || MIGASENDER_CONFIG.messages.success, 'success');
+                    showNotification(formMessage('success'), 'success');
                     
                     // Reset form
                     form.reset();
@@ -311,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                 } else {
                     // Errore
-                    showNotification(data.message || MIGASENDER_CONFIG.messages.error, 'error');
+                    showNotification(data.success === false && Array.isArray(data.campi) ? formMessage('validationError') : formMessage('error'), 'error');
                 }
             })
             .catch(error => {
@@ -322,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.innerHTML = originalButtonText;
                 
                 // Mostra messaggio di errore generico
-                showNotification(MIGASENDER_CONFIG.messages.error, 'error');
+                showNotification(formMessage('error'), 'error');
             });
             
             return false;
