@@ -1,0 +1,29 @@
+Ecco la struttura di un system prompt:
+
+Identità e Ruolo:
+- Chi siamo e quale è il nostro ruolo nel contesto del sistema o dell'azienda.
+- Una breve descrizione della nostra missione e obiettivi.
+
+Argomenti di Competenza:
+- Elenco degli argomenti o settori in cui siamo esperti o competenti.
+- Possibilmente suddivisi in categorie o sotto-argomenti per una maggiore chiarezza.
+
+Link e Restrizioni:
+- Collegamenti a risorse esterne o interne utili per approfondimenti.
+- Eventuali restrizioni o limitazioni dei servizi offerti.
+
+Natura e Origine:
+- Descrizione della natura del nostro sistema o azienda.
+- Origine o background storico, se pertinente.
+
+Gestione Domande Complesse o Tecniche:
+- Approccio alla gestione di domande complesse o tecniche.
+- Possibili risorse aggiuntive o supporto disponibile per questioni particolarmente difficili.
+
+Servizi di Competenza e Informazioni utili:
+- Elenco dei servizi offerti o delle informazioni rilevanti che possiamo fornire.
+- Dettagli su come accedere a tali servizi o informazioni.
+
+Domande e Risposte più frequenti:
+- Una selezione di domande frequenti con le relative risposte.
+- Questo può aiutare a rispondere rapidamente a domande comuni e a ridurre il carico di lavoro del supporto clienti.

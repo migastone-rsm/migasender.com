@@ -48,7 +48,13 @@ js/main.js              MIGASENDER_CONFIG at the top; nav, FAQ accordion, GDPR/T
 js/i18n.js              Translation dictionaries (it/en/es/de) + language switcher
 form-handler.php        PHP endpoint for native form submissions (sends email)
 mg/    maddl/  valerio/ Self-contained partnership landing pages (own HTML/CSS/JS, no i18n, own Kartra checkout IDs)
+academy/                Customer academy (static, noindex, not linked from the site)
 ```
+
+### academy/
+Customer academy for Migasender, moved off Kartra (was `migastoneacademy.com/migasender`). Static pages built from the Kartra export: own `style.css`, images and downloads in `academy/media/`, videos embedded from Vimeo (one from YouTube). Open access by design, but every page carries `noindex, nofollow`, it is not in `sitemap.xml` and nothing on the main site links to it: customers get the link after purchase.
+- Buttons that used to open a Kartra checkout or a dead product page carry `data-checkout="<key>"` and point to `/#contatto` as a placeholder. When the MIGAMATCH shop links arrive, replace the `href` of each `data-checkout` element (`grep -rn data-checkout academy/`).
+- Vimeo embeds work only if the videos are not restricted to the old Kartra domains in Vimeo's privacy settings.
 
 ### Forms: two coexisting systems
 The live hero and contact forms are **Kartra-hosted** (their `<form>` elements get class `js_kartra_trackable_object` injected by Kartra's loader). The JS submit handler in `js/main.js` deliberately skips them via `document.querySelectorAll('.contact-form:not(.js_kartra_trackable_object)')`; Kartra owns submission and analytics for those.
