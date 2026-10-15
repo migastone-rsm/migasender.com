@@ -53,7 +53,7 @@ academy/                Customer academy (static, noindex, not linked from the s
 
 ### academy/
 Customer academy for Migasender, moved off Kartra (was `migastoneacademy.com/migasender`). Static pages built from the Kartra export: own `style.css`, images and downloads in `academy/media/`, videos embedded from Vimeo (one from YouTube). Open access by design, but every page carries `noindex, nofollow`, it is not in `sitemap.xml` and nothing on the main site links to it: customers get the link after purchase.
-- Buttons that used to open a Kartra checkout or a dead product page carry `data-checkout="<key>"` and point to `/#contatto` as a placeholder. When the MIGAMATCH shop links arrive, replace the `href` of each `data-checkout` element (`grep -rn data-checkout academy/`).
+- Buttons that used to open a Kartra checkout or a dead product page carry `data-checkout="<key>"` and point to `/#contatto` as a placeholder. These are services (chiavi in mano 149/249 EUR, MigaPipeline, MigaReminder, MigaReview WA), not MIGASENDER lines, so the three MIGASENDER shop links do not apply to them; when shop links for those services exist, replace the `href` of each `data-checkout` element (`grep -rn data-checkout academy/`).
 - Vimeo embeds work only if the videos are not restricted to the old Kartra domains in Vimeo's privacy settings.
 
 ### Forms: two coexisting systems
@@ -72,9 +72,11 @@ When adding/editing copy:
 3. For strings built dynamically in JS (e.g. the AGENTE AI modal in `js/main.js`), use `window.getTranslation('key')`.
 
 ### Pricing / checkout flow
-Pricing card buttons are direct links to Kartra checkout URLs (e.g. `https://migastone.kartra.com/checkout/<id>`). The **AGENTE AI** card is special: its button calls `checkAgenteAI()` (`js/main.js`), which renders an inline confirmation modal asking the user to confirm they already have an active Migasender line before opening the Kartra checkout in a new tab. Don't replace this with a direct link: it's the prerequisite gate.
+Since 2026-10-15 the main site sells through the MIGAMATCH shop (Stripe), not Kartra: one URL per product code, `https://auto.migamatch.com/shop?sku=<SKU>` with `MIGASENDER_BASIC` (1 line), `MIGASENDER_PRO` (5 lines) and `MIGASENDER_AI_AGENT` (chatbot add-on). The same SKUs reach the license server in the purchase/renewal/cancel webhook. An unknown SKU still answers 200 and shows "Nessun servizio disponibile", so check a new link by rendering the page, not by its status code.
 
-Each partner landing page (`mg/`, `maddl/`, `valerio/`) has its **own** Kartra checkout IDs distinct from the main site's; don't cross-wire them.
+The BASIC and PRO cards link straight to their SKU. The **AGENTE AI** card is special: its button calls `checkAgenteAI()` (`js/main.js`), which renders an inline confirmation modal asking the user to confirm they already have an active Migasender line before opening the shop page in a new tab. Don't replace this with a direct link: it's the prerequisite gate (the chatbot can only be bought on top of an active line).
+
+Each partner landing page (`mg/`, `maddl/`, `valerio/`) still has its **own** Kartra checkout IDs, distinct from the main site's, presumably for partner attribution; don't cross-wire them. They have no MIGAMATCH equivalent yet and stop working when the Kartra cart is switched off (2026-10-18).
 
 ### Tracking & SEO
 Both Google Analytics 4 (`G-KXGY7V5B1K`) and the Facebook/Meta Pixel (`815159017390537`) are inlined in `<head>` **before** the stylesheets so they fire as early as possible. Keep them at the top when reorganising `<head>`.
