@@ -7,6 +7,21 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [1.5.0] - 2026-10-15
+
+### Acquisti dal negozio MIGAMATCH
+
+#### Changed
+- I pulsanti "Acquista Ora" di BASIC, PRO e AGENTE AI aprono il negozio MIGAMATCH (`auto.migamatch.com/shop?sku=...`) invece del checkout Kartra. L'AGENTE AI passa ancora dalla conferma "hai già una linea attiva?".
+- `js/main.js?v=20261015` per non servire la versione in cache con il vecchio link.
+
+#### Note
+- Le landing partner (`mg/`, `maddl/`, `valerio/`) restano su Kartra: servono link partner dal negozio.
+
+Data: 2026-10-15 · Autore: [Claude] · Verifica: rendering delle tre pagine SKU, click-through locale dei tre pulsanti.
+
+---
+
 ## [1.4.1] - 2024-12-11
 
 ### 🔧 Fix Modulo Contatti

@@ -78,7 +78,7 @@ function checkAgenteAI() {
 }
 
 function proceedToAgenteAI() {
-    window.open('https://migastone.kartra.com/checkout/5cf1eabdc1914980b12a91679cfebd5e', '_blank');
+    window.open('https://auto.migamatch.com/shop?sku=MIGASENDER_AI_AGENT', '_blank', 'noopener');
     closeAgenteAIModal();
 }
 
