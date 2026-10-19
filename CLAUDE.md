@@ -38,7 +38,7 @@ Every push to `main` deploys the live site automatically; there is no manual upl
 
 ## Architecture
 
-The site is one main HTML page plus three independent partner landing pages. They share assets only by convention; treat each landing page as its own micro-site.
+The site is one main HTML page plus two independent partner landing pages. They share assets only by convention; treat each landing page as its own micro-site.
 
 ```
 index.html              Main site (Italian default, 4-language switching)
@@ -47,7 +47,7 @@ css/custom.css          Override layer loaded AFTER style.css
 js/main.js              MIGASENDER_CONFIG at the top; nav, FAQ accordion, GDPR/Terms modals, AGENTE AI confirmation modal, native form AJAX, toasts
 js/i18n.js              Translation dictionaries (it/en/es/de) + language switcher
 form-handler.php        PHP endpoint for native form submissions (sends email)
-mg/    maddl/  valerio/ Self-contained partnership landing pages (own HTML/CSS/JS, no i18n, own Kartra checkout IDs)
+mg/    valerio/         Self-contained partnership landing pages (own HTML/CSS/JS, no i18n); maddl/ removed 2026-10-19
 academy/                Customer academy (static, noindex, not linked from the site)
 ```
 
@@ -76,14 +76,14 @@ Since 2026-10-15 the main site sells through the MIGAMATCH shop (Stripe), not Ka
 
 The BASIC and PRO cards link straight to their SKU. The **AGENTE AI** card is special: its button calls `checkAgenteAI()` (`js/main.js`), which renders an inline confirmation modal asking the user to confirm they already have an active Migasender line before opening the shop page in a new tab. Don't replace this with a direct link: it's the prerequisite gate (the chatbot can only be bought on top of an active line).
 
-Each partner landing page (`mg/`, `maddl/`, `valerio/`) still has its **own** Kartra checkout IDs, distinct from the main site's, presumably for partner attribution; don't cross-wire them. They have no MIGAMATCH equivalent yet and stop working when the Kartra cart is switched off (2026-10-18).
+Since 2026-10-19 the partner landing pages `mg/` (Marketing Genius) and `valerio/` (Valerio.it) use the same shop links as the main site (BASIC and AI_AGENT, the agent behind each page's own confirmation modal in `script.js`): Ivan decided no partner-specific SKU, since the prices match and no partner commission is owed. Their prices are aligned to the shop (14,90 then 178,80/year; agent 29 then 348/year). `maddl/` (closed partnership) was removed from the repo, hence from the server, and from `sitemap.xml`. The `README.md`/`TEST-*.md` inside `mg/` and `valerio/` still describe the old Kartra setup.
 
 ### Tracking & SEO
 Both Google Analytics 4 (`G-KXGY7V5B1K`) and the Facebook/Meta Pixel (`815159017390537`) are inlined in `<head>` **before** the stylesheets so they fire as early as possible. Keep them at the top when reorganising `<head>`.
 
 Schema.org JSON-LD lives in three `<script type="application/ld+json">` blocks in `index.html`: one `@graph` in `<head>` (`Organization` + `SoftwareApplication` with its `Offer`s), and `BreadcrumbList` and `FAQPage` blocks in the body, near the FAQ section. **These mirror on-page content**: when you change pricing, FAQ items, or the company description on the page, also update the matching JSON-LD, otherwise the structured data goes stale.
 
-`sitemap.xml` references the main page (plus `#prodotti`, `#prezzi`, `#contatto` anchors) and `/mg/`, `/maddl/`, but not `/valerio/`. `robots.txt` is permissive.
+`sitemap.xml` references the main page (plus `#prodotti`, `#prezzi`, `#contatto` anchors) and `/mg/`, but not `/valerio/`. `robots.txt` is permissive.
 
 ### Server / .htaccess
 As of 2026-10-03 the live LiteSpeed server **does not apply `.htaccess` at all** as far as can be tested: the `FilesMatch`/`Deny` blocks, the cache/GZIP blocks, and the `RewriteRule ... - [F]` blocks added in the rewrite section (hidden files except `.well-known/`, `*.md`, `form-handler.php`) all have no effect, even though the deployed file matches the repo. Likely OpenLiteSpeed (re-reads `.htaccess` only after a server restart) or `.htaccess` disabled for the vhost; pending a check with Worldstream. Until then: don't rely on `.htaccess` for access control, and test any change to it against the live site after deploy. GZIP and cache headers come from the server defaults. The HTTPS-redirect and www-canonicalization blocks are commented out: uncomment per environment, and don't enable both `force www` and `strip www`.
