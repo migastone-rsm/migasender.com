@@ -7,6 +7,20 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [1.5.1] - 2026-10-19
+
+### Pagine partner sul negozio MIGAMATCH
+
+#### Changed
+- `/mg/` e `/valerio/`: i pulsanti BASIC e Agente AI aprono il negozio MIGAMATCH (stessi link della home) al posto dei checkout Kartra, spenti dal 18/10. Prezzi allineati al negozio: BASIC 14,90 € poi 178,80 €/anno, Agente AI 29 € poi 348 €/anno.
+
+#### Removed
+- `/maddl/` (partnership chiusa) tolta dal sito e dalla sitemap.
+
+Data: 2026-10-19 · Autore: [Claude] · Verifica: click-through locale dei pulsanti, deploy e controllo sul live.
+
+---
+
 ## [1.5.0] - 2026-10-15
 
 ### Acquisti dal negozio MIGAMATCH

@@ -17,8 +17,8 @@ function closeAgenteAIModal() {
 }
 
 function proceedToCheckout() {
-    // Apri checkout Kartra per Agente AI in nuova finestra
-    window.open('https://migastone.kartra.com/checkout/03ca1ac0cf317c7bfe9ed3ca7f85fc97', '_blank');
+    // Apri il negozio MIGAMATCH per l'Agente AI in nuova finestra
+    window.open('https://auto.migamatch.com/shop?sku=MIGASENDER_AI_AGENT', '_blank', 'noopener');
     closeAgenteAIModal();
 }
 
