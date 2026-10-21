@@ -18,7 +18,7 @@ function closeAgenteAIModal() {
 
 function proceedToCheckout() {
     // Apri il negozio MIGAMATCH per l'Agente AI in nuova finestra
-    window.open('https://auto.migamatch.com/shop?sku=MIGASENDER_AI_AGENT', '_blank', 'noopener');
+    window.open('https://auto.migamatch.com/shop?sku=MIGASENDER_AI_AGENT&partner=mg', '_blank', 'noopener');
     closeAgenteAIModal();
 }
 
